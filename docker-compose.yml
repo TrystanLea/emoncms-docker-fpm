@@ -65,9 +65,9 @@ services:
 
   db:
     build:
-        context: ./mysql
-        args:
-          - "MYSQL_DOCKER_IMAGE=${MYSQL_DOCKER_IMAGE}"
+      context: ./mysql
+      args:
+        - "MYSQL_DOCKER_IMAGE=${MYSQL_DOCKER_IMAGE}"
     volumes: ["db:${MYSQL_DATA_DIR}"]
     environment:
       - "MYSQL_HOST=${MYSQL_HOST}"
@@ -131,7 +131,6 @@ services:
         - "EMONCMS_DIR=${EMONCMS_DIR}"
         - "EMONHUB_DIR=${EMONHUB_DIR}"
         - "EMONHUB_LOG=${EMONHUB_LOG}"
-        - "REBOOT_HOST_TOGGLE=/reboot_request"
     depends_on: ["mqtt"]
     privileged: true
     restart: always
@@ -140,8 +139,6 @@ services:
        - "emoncms-dir:${EMONCMS_DIR}"
        - "emonhub-dir:${EMONHUB_DIR}"
        - "emoncms-log:${LOG_LOCATION}"
-       - "/boot:/boot"
-       - "./shutdown_signal:/shutdown_signal"
     environment:
       - "REDIS_ENABLED=${REDIS_ENABLED}"
       - "REDIS_HOST=${REDIS_HOST}"
@@ -151,10 +148,7 @@ services:
       - "EMONHUB_DIR=${EMONHUB_DIR}"
       - "EMONHUB_LOG=${EMONHUB_LOG}"
       - "EMONCMS_WEB_DIR=${WEB_DIR}/${APPNAME}"
-      - "REBOOT_HOST_TOGGLE=/reboot_request"
-    devices:
-      - "/dev/gpiomem:/dev/gpiomem"
-
+    command: sh -c "sleep 5; python3 ${EMONHUB_DIR}/src/emonhub.py --config-file=/etc/emonhub/emonhub.conf"
 
 volumes:
   db:
