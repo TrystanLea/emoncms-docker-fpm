@@ -1,41 +1,32 @@
 #!/bin/bash
 # intended to be ran on docker host
-
-# ADD SIGNAL FILE & inotify PACKAGE
----------------
-sudo apt-get update && sudo apt-get install -y inotify-tools
-FILE=/var/run/shutdown
-sudo touch $FILE
-sudo chmod 777 $FILE
-
-# EDIT rc.local
---------------
-# run watcher script on boot...
-#   looks for blank line before "exit 0" and adds host-shutdown-interface.sh before it 
-#   can only be ran once as there will not be a blank line before the "exit 0" line
-
-DIR="$(cd "$(dirname "$0")" && pwd)"
-sudo perl -i -0pe "s|\n\nexit 0|\n\n\sudo bash $DIR/host-shutdown-interface.sh &\nexit 0|" /etc/rc.local
+sudo apt-get update
 
 curl -sSL https://get.docker.com | sh
 sudo usermod -aG docker pi
 
-# INSTALL DOCKER AND GIT
---------------
-sudo apt-get update && sudo apt-get install -y libffi-dev libssl-dev python3 python3-pip git-core
+sudo apt-get install -y python3 python3-pip git-core
 sudo pip3 install docker-compose
 
-# copy files from github
-git clone https://github.com/emrysr/emoncms-docker-fpm.git && cd emoncms-docker-fpm
+git clone https://github.com/TrystanLea/emoncms-docker-fpm && cd emoncms-docker-fpm
 git checkout -b stage1-5-emonhub && git pull origin stage1-5-emonhub
 
-# HOST SHUTDOWN
---------------
-# run the host-shutdown-interface.sh before running the docker containers
-# (/etc/rc.local will restart it on next boot)
-./host-shutdown-interface.sh
+# ----------------------------------------------------------------------------------------
+# RaspberryPi Serial configuration
+# disable Pi3 Bluetooth and restore UART0/ttyAMA0 over GPIOs 14 & 15;
+# Review should this be: dtoverlay=pi3-miniuart-bt?
+sudo sed -i -n '/dtoverlay=pi3-disable-bt/!p;$a dtoverlay=pi3-disable-bt' /boot/config.txt
 
-# DOCKER COMPOSE
---------------
-# run all containers (will restart on reboot)
+# We also need to stop the Bluetooth modem trying to use UART
+sudo systemctl disable hciuart
+
+# Remove console from /boot/cmdline.txt
+sudo sed -i "s/console=serial0,115200 //" /boot/cmdline.txt
+
+# stop and disable serial service??
+sudo systemctl stop serial-getty@ttyAMA0.service
+sudo systemctl disable serial-getty@ttyAMA0.service
+sudo systemctl mask serial-getty@ttyAMA0.service
+# ----------------------------------------------------------------------------------------
+
 docker-compose up
