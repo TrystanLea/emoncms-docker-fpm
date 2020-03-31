@@ -22,7 +22,6 @@ services:
       - "emonhub-dir:${EMONHUB_DIR}"
       - "var-lock:/var/lock"
       - "emonhub-log:${EMONHUB_LOG}"
-      - "./shutdown_signal:/shutdown_signal"
     environment:
       - "MYSQL_HOST=${MYSQL_HOST}"
       - "MYSQL_PORT=${MYSQL_PORT}"
