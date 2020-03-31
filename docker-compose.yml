@@ -40,7 +40,7 @@ services:
       - "MQTT_BASETOPIC=${MQTT_BASETOPIC}"
       - "PHPFINA_DIR=${PHPFINA_DIR}"
       - "PHPTIMESERIES_DIR=${PHPTIMESERIES_DIR}"
-      - "REDISBUFFER_ENABLED=${PREDISBUFFER_ENABLED}"
+      - "REDISBUFFER_ENABLED=${REDISBUFFER_ENABLED}"
       - "EMONCMS_DIR=${EMONCMS_DIR}"
       - "OPENENERGYMONITOR_DIR=${OPENENERGYMONITOR_DIR}"
       - "DEFAULT_LANG=${DEFAULT_LANG}"
@@ -147,7 +147,7 @@ services:
       - "EMONHUB_DIR=${EMONHUB_DIR}"
       - "EMONHUB_LOG=${EMONHUB_LOG}"
       - "EMONCMS_WEB_DIR=${WEB_DIR}/${APPNAME}"
-    command: sh -c "sleep 5; python3 ${EMONHUB_DIR}/src/emonhub.py --config-file=/etc/emonhub/emonhub.conf"
+    command: sh -c "sleep 5; python3 ${EMONHUB_DIR}/src/emonhub.py --config-file=${EMONHUB_CONF}"
 
 volumes:
   db:
